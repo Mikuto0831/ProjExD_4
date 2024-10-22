@@ -245,6 +245,11 @@ class Score:
         screen.blit(self.image, self.rect)
 
 class EMP(pg.sprite.Sprite):
+    """
+    EMP画面全体に黄色にする
+    敵機：爆弾投下できなくなる（見た目はラプラシアンフィルタ）
+    爆弾：動きが鈍くなる／起爆しなくなる
+    """
     def __init__(self,Enemy,Bomb,screen):
         super().__init__()
         for i in Enemy:
