@@ -260,12 +260,6 @@ class EMP(pg.sprite.Sprite):
         self.life = 50
     def update(self):
         self.life -= 1
-        print(self.life)
-        # self.enemy.interavel = "inf"
-        # self.enemy.image = pg.transform.laplacian(self.enemy.image)
-        # self.bomb.speed /=2
-        # self.bomb.state ="inactive"
-        #pg.draw(self.image)
         if self.life < 0:
             self.kill()
 
@@ -294,9 +288,9 @@ def main():
                 return 0
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                 beams.add(Beam(bird))
-            if event.type == pg.KEYDOWN and event.key ==pg.K_e and score.value>=10:
+            if event.type == pg.KEYDOWN and event.key ==pg.K_e and score.value>=20:
                 emp.add(EMP(emys,bombs,screen))
-                score.value -=10
+                score.value -=20
         screen.blit(bg_img, [0, 0])
 
         if tmr%200 == 0:  # 200フレームに1回，敵機を出現させる
