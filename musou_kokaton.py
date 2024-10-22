@@ -226,7 +226,6 @@ class Enemy(pg.sprite.Sprite):
             self.state = "stop"
         self.rect.move_ip(self.vx, self.vy)
 
-
 class Score:
     """
     打ち落とした爆弾，敵機の数をスコアとして表示するクラス
@@ -245,6 +244,33 @@ class Score:
         self.image = self.font.render(f"Score: {self.value}", 0, self.color)
         screen.blit(self.image, self.rect)
 
+class EMP(pg.sprite.Sprite):
+    def __init__(self,Enemy,Bomb,screen):
+        super().__init__()
+        for i in Enemy:
+            i.interavel = "inf"
+            i.image = pg.transform.laplacian(i.image)
+        for t in Bomb:
+            t.speed /=2
+            t.state ="inactive"
+        self.image = pg.Surface((WIDTH,HEIGHT))
+        pg.draw.rect(self.image,(255,255,0),(0,0,WIDTH,HEIGHT))
+        self.image.set_alpha(128)
+        self.rect = self.image.get_rect()
+        self.life = 50
+    def update(self):
+        self.life -= 1
+        print(self.life)
+        # self.enemy.interavel = "inf"
+        # self.enemy.image = pg.transform.laplacian(self.enemy.image)
+        # self.bomb.speed /=2
+        # self.bomb.state ="inactive"
+        #pg.draw(self.image)
+        if self.life < 0:
+            self.kill()
+
+
+
 
 def main():
     pg.display.set_caption("真！こうかとん無双")
@@ -257,17 +283,20 @@ def main():
     beams = pg.sprite.Group()
     exps = pg.sprite.Group()
     emys = pg.sprite.Group()
+    emp = pg.sprite.Group()
 
     tmr = 0
     clock = pg.time.Clock()
     while True:
         key_lst = pg.key.get_pressed()
         for event in pg.event.get():
-            print(pg.event.get())
             if event.type == pg.QUIT:
                 return 0
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                 beams.add(Beam(bird))
+            if event.type == pg.KEYDOWN and event.key ==pg.K_e and score.value>=10:
+                emp.add(EMP(emys,bombs,screen))
+                score.value -=10
         screen.blit(bg_img, [0, 0])
 
         if tmr%200 == 0:  # 200フレームに1回，敵機を出現させる
@@ -304,6 +333,8 @@ def main():
         exps.update()
         exps.draw(screen)
         score.update(screen)
+        emp.draw(screen)
+        emp.update()
         pg.display.update()
         tmr += 1
         clock.tick(50)
