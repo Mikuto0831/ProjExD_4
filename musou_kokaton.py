@@ -249,8 +249,11 @@ class EMP(pg.sprite.Sprite):
     EMP画面全体に黄色にする
     敵機：爆弾投下できなくなる（見た目はラプラシアンフィルタ）
     爆弾：動きが鈍くなる／起爆しなくなる
+    引数1エネミーグループ
+    引数2爆弾グループ
+    引数3スクリーン
     """
-    def __init__(self,Enemys,Bombs,screen):
+    def __init__(self,Enemys,Bombs,screen: pg.Surface):
         super().__init__()
         for enemy in Enemys:
             enemy.interval = 'inf'
@@ -316,10 +319,11 @@ def main():
             if bomb.state != 'inactive':
                 exps.add(Explosion(bomb, 50))  # 爆発エフェクト
                 score.value += 1  # 1点アップ
-        temp_lst=[]
-        for bomb in bombs:
-            if bomb.state =='inactive':
-                temp_lst.append(bomb)
+        # temp_lst=[]
+        # for bomb in bombs:
+        #     if bomb.state =='inactive':
+        #         temp_lst.append(bomb)
+        temp_lst = [bomb for bomb in bombs if bomb.state =='inactive']
         if len(pg.sprite.spritecollide(bird, bombs, True)) != 0:
             if temp_lst:
                 for temp in temp_lst:
