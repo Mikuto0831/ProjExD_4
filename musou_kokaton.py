@@ -358,6 +358,7 @@ class EMP(pg.sprite.Sprite):
         for enemy in Enemys:
             enemy.interval = 'inf'
             enemy.image = pg.transform.laplacian(enemy.image)
+            enemy.image.set_colorkey((0, 0, 0))
         for bomb in Bombs:
             bomb.speed /=2
             bomb.state = "inactive"
@@ -448,8 +449,9 @@ def main():
                 
 
         for bomb in pg.sprite.groupcollide(bombs, beams, True, True).keys():
-            exps.add(Explosion(bomb, 50))  # 爆発エフェクト
-            score.value += 1  # 1点アップ
+            if bomb.state != 'inactive':
+                exps.add(Explosion(bomb, 50))  # 爆発エフェクト
+                score.value += 1  # 1点アップ
             
         
         for emy in pg.sprite.groupcollide(emys, beams, True, True).keys():
@@ -457,22 +459,20 @@ def main():
             score.value += 10  # 10点アップ
             bird.change_img(6, screen)  # こうかとん喜びエフェクト
 
-        for bomb in pg.sprite.groupcollide(bombs, beams, True, True).keys():
-            if bomb.state != 'inactive':
-                exps.add(Explosion(bomb, 50))  # 爆発エフェクト
-                score.value += 1  # 1点アップ
             
         if len(bomb_list := pg.sprite.spritecollide(bird, bombs, True)) != 0:
             if bird.state == "hyper":
                 for bomb in bomb_list:
                     exps.add(Explosion(bomb, 50))  # 爆発エフェクト
-                    score.value += 1  # 1点アップ
+                    score.value += 1  # 1点アップ            
             else:
-                bird.change_img(8, screen) # こうかとん悲しみエフェクト
-                score.update(screen)
-                pg.display.update()
-                time.sleep(2)
-                return
+                temp_lst = [bomb for bomb in bomb_list if bomb.state =='inactive']
+                if any(pg.sprite.collide_rect(bird, bomb) for bomb in bomb_list if bomb.state !='inactive'):
+                    bird.change_img(8, screen) # こうかとん悲しみエフェクト
+                    score.update(screen)
+                    pg.display.update()
+                    time.sleep(2)
+                    return
         
         for emy in pg.sprite.groupcollide(emys, walls, True, True).keys():
             exps.add(Explosion(emy, 100))  # 爆発エフェクト
@@ -482,24 +482,24 @@ def main():
         for bomb in pg.sprite.groupcollide(bombs, walls, True, True).keys():
             exps.add(Explosion(bomb, 50))  # 爆発エフェクト
             score.value += 1  # 1点アップ
-        temp_lst = [bomb for bomb in bombs if bomb.state =='inactive']
-        if len(pg.sprite.spritecollide(bird, bombs, True)) != 0:
-            if temp_lst:
-                for temp in temp_lst:
-                    if pg.sprite.collide_rect(bird, temp)==True:
-                        pass
-                    else:
-                        bird.change_img(8, screen) # こうかとん悲しみエフェクト
-                        score.update(screen)
-                        pg.display.update()
-                        time.sleep(2)
-                        return
-            else:
-                bird.change_img(8, screen) # こうかとん悲しみエフェクト
-                score.update(screen)
-                pg.display.update()
-                time.sleep(2)
-                return
+        # temp_lst = [bomb for bomb in bombs if bomb.state =='inactive']
+        # if len(pg.sprite.spritecollide(bird, bombs, True)) != 0:
+        #     if temp_lst:
+        #         for temp in temp_lst:
+        #             if pg.sprite.collide_rect(bird, temp)==True:
+        #                 pass
+        #             else:
+        #                 bird.change_img(8, screen) # こうかとん悲しみエフェクト
+        #                 score.update(screen)
+        #                 pg.display.update()
+        #                 time.sleep(2)
+        #                 return
+        #     else:
+        #         bird.change_img(8, screen) # こうかとん悲しみエフェクト
+        #         score.update(screen)
+        #         pg.display.update()
+        #         time.sleep(2)
+        #         return
         
 
                 
