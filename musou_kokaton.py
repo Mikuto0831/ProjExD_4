@@ -302,7 +302,7 @@ def main():
             emys.add(Enemy())
 
         for emy in emys:
-            if emy.interval is not 'inf':#emyのインターバルがinfでなかったら
+            if emy.interval != 'inf':#emyのインターバルがinfでなかったら
                 if emy.state == "stop" and tmr%emy.interval == 0:
                     # 敵機が停止状態に入ったら，intervalに応じて爆弾投下
                     bombs.add(Bomb(emy, bird))
@@ -313,16 +313,30 @@ def main():
             bird.change_img(6, screen)  # こうかとん喜びエフェクト
 
         for bomb in pg.sprite.groupcollide(bombs, beams, True, True).keys():
-            if bomb.state is not 'inactive':
+            if bomb.state != 'inactive':
                 exps.add(Explosion(bomb, 50))  # 爆発エフェクト
                 score.value += 1  # 1点アップ
-
+        temp_lst=[]
+        for bomb in bombs:
+            if bomb.state =='inactive':
+                temp_lst.append(bomb)
         if len(pg.sprite.spritecollide(bird, bombs, True)) != 0:
-            bird.change_img(8, screen) # こうかとん悲しみエフェクト
-            score.update(screen)
-            pg.display.update()
-            time.sleep(2)
-            return
+            if temp_lst:
+                for temp in temp_lst:
+                    if pg.sprite.collide_rect(bird, temp)==True:
+                        pass
+                    else:
+                        bird.change_img(8, screen) # こうかとん悲しみエフェクト
+                        score.update(screen)
+                        pg.display.update()
+                        time.sleep(2)
+                        return
+            else:
+                bird.change_img(8, screen) # こうかとん悲しみエフェクト
+                score.update(screen)
+                pg.display.update()
+                time.sleep(2)
+                return
 
         bird.update(key_lst, screen)
         beams.update()
