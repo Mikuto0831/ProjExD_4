@@ -130,7 +130,7 @@ class Bomb(pg.sprite.Sprite):
         self.rect.centerx = emy.rect.centerx
         self.rect.centery = emy.rect.centery+emy.rect.height//2
         self.speed = 6
-
+        self.state = 'active'
     def update(self):
         """
         爆弾を速度ベクトルself.vx, self.vyに基づき移動させる
@@ -250,14 +250,14 @@ class EMP(pg.sprite.Sprite):
     敵機：爆弾投下できなくなる（見た目はラプラシアンフィルタ）
     爆弾：動きが鈍くなる／起爆しなくなる
     """
-    def __init__(self,Enemy,Bomb,screen):
+    def __init__(self,Enemys,Bombs,screen):
         super().__init__()
-        for i in Enemy:
-            i.interavel = "inf"
-            i.image = pg.transform.laplacian(i.image)
-        for t in Bomb:
-            t.speed /=2
-            t.state ="inactive"
+        for enemy in Enemys:
+            enemy.interval = 'inf'
+            enemy.image = pg.transform.laplacian(enemy.image)
+        for bomb in Bombs:
+            bomb.speed /=2
+            bomb.state = "inactive"
         self.image = pg.Surface((WIDTH,HEIGHT))
         pg.draw.rect(self.image,(255,255,0),(0,0,WIDTH,HEIGHT))
         self.image.set_alpha(128)
@@ -302,9 +302,10 @@ def main():
             emys.add(Enemy())
 
         for emy in emys:
-            if emy.state == "stop" and tmr%emy.interval == 0:
-                # 敵機が停止状態に入ったら，intervalに応じて爆弾投下
-                bombs.add(Bomb(emy, bird))
+            if emy.interval is not 'inf':#emyのインターバルがinfでなかったら
+                if emy.state == "stop" and tmr%emy.interval == 0:
+                    # 敵機が停止状態に入ったら，intervalに応じて爆弾投下
+                    bombs.add(Bomb(emy, bird))
 
         for emy in pg.sprite.groupcollide(emys, beams, True, True).keys():
             exps.add(Explosion(emy, 100))  # 爆発エフェクト
@@ -312,8 +313,9 @@ def main():
             bird.change_img(6, screen)  # こうかとん喜びエフェクト
 
         for bomb in pg.sprite.groupcollide(bombs, beams, True, True).keys():
-            exps.add(Explosion(bomb, 50))  # 爆発エフェクト
-            score.value += 1  # 1点アップ
+            if bomb.state is not 'inactive':
+                exps.add(Explosion(bomb, 50))  # 爆発エフェクト
+                score.value += 1  # 1点アップ
 
         if len(pg.sprite.spritecollide(bird, bombs, True)) != 0:
             bird.change_img(8, screen) # こうかとん悲しみエフェクト
